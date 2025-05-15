@@ -1,4 +1,4 @@
-use crate::models::{NewProduct, Product};
+use crate::models::{NewProduct};
 use crate::errors::AppError;
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -8,18 +8,15 @@ pub async fn add_product(
     category: &str,
     product: NewProduct,
 ) -> Result<(), AppError> {
-    sqlx::query!(
-        r#"
-        INSERT INTO products (id, name, description, price, image_url, category)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        "#,
-        Uuid::new_v4(),
-        product.name,
-        product.description,
-        product.price,
-        product.image_url,
-        category
+    sqlx::query(
+        "INSERT INTO products (id, name, description, price, image_url, category) VALUES ($1, $2, $3, $4, $5, $6)"
     )
+    .bind(Uuid::new_v4())
+    .bind(&product.name)
+    .bind(&product.description)
+    .bind(product.price)
+    .bind(&product.image_url)
+    .bind(category)
     .execute(db)
     .await?;
 
